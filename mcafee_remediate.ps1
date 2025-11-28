@@ -114,15 +114,6 @@ function Get-McAfeeStatus {
     return 0
 }
 
-### Schedule Reboot at Midnight Function ###
-function Set-RebootAtMidnight {
-    $now = Get-Date
-    $midnight = [datetime]::Today.AddDays(1)
-    $secondsUntilMidnight = [int]($midnight - $now).TotalSeconds
-    Write-Log ("Scheduling reboot at local midnight (in {0} seconds, at {1})." -f $secondsUntilMidnight, $midnight) "INFO"
-    shutdown.exe /r /t $secondsUntilMidnight
-}
-
 ### Pre-Check ###
 $status = Get-McAfeeStatus -fileThreshold 10
 switch ($status) {
@@ -132,7 +123,6 @@ switch ($status) {
     }
     2 {
         Write-Log "Pre-check: Residual McAfee files detected (≤10 files with QcShm.exe running); a reboot is required to clear file locks." "INFO"
-        Set-RebootAtMidnight
         exit 0
     }
     1 {
@@ -148,8 +138,8 @@ if (-not (Test-Path $DebloatFolder)) {
 }
 
 # Note: ServiceUI is no longer used.
-$McAfeeCleanZipUrl  = "https://github.com/nullifyac/McAfee_Removal/raw/refs/heads/main/mcafeeclean.zip"
-$McCleanupZipUrl    = "https://github.com/nullifyac/McAfee_Removal/raw/refs/heads/main/mccleanup.zip"
+$McAfeeCleanZipUrl  = "https://raw.githubusercontent.com/Evolve-Technologies/McAfee-Script-Uninstall/refs/heads/main/mcafeeclean.zip"
+$McCleanupZipUrl    = "https://raw.githubusercontent.com/Evolve-Technologies/McAfee-Script-Uninstall/refs/heads/main/mccleanup.zip"
 
 # Local file paths
 $McAfeeCleanZipPath = Join-Path $DebloatFolder "mcafeeclean.zip"
@@ -377,7 +367,6 @@ switch ($status) {
     }
     2 {
         Write-Log "Final detection: Residual McAfee files remain (≤10 files with QcShm.exe running). A reboot is required to clear file locks." "INFO"
-        Set-RebootAtMidnight
         exit 0
     }
     1 {
@@ -385,3 +374,4 @@ switch ($status) {
         exit 1
     }
 }
+
